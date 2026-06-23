@@ -2,14 +2,28 @@
   "name": "@onboarded/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "generate": "python3 packages/core/scripts/generate_adapters.py --all",
+    "generate:ts": "python3 packages/core/scripts/generate_adapters.py --all --ts-only",
+    "validate": "python3 packages/core/scripts/validate_domain.py --all",
+    "portal:start": "nx run portal:serve",
+    "portal:build": "nx run portal:build",
+    "portal:build:msi": "nx run portal:build --configuration=msi",
+    "typecheck": "nx run-many --target=typecheck --all",
+    "test": "nx run-many --target=test --all",
+    "test:cli": "bats packages/cli/tests/bats/nav/test_nav_msi.bats packages/cli/tests/bats/nav/test_nav_generic.bats packages/cli/tests/bats/scan/test_scan_msi.bats",
+    "test:api": "cd packages/api && pytest --tb=short -q",
+    "lint": "nx run-many --target=lint --all"
+  },
   "private": true,
-  "dependencies": {},
   "devDependencies": {
-    "@nx/js": "22.7.2",
+    "@nx/angular": "^22.7.2",
+    "@nx/js": "^22.7.2",
     "@swc-node/register": "~1.11.1",
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "nx": "22.7.2",
     "prettier": "~3.6.2",
     "tslib": "^2.3.0",
@@ -17,5 +31,12 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "allowScripts": {
+    "less@4.5.1": true,
+    "less@4.6.7": true,
+    "@parcel/watcher@2.5.6": true,
+    "@swc/core@1.15.43": true,
+    "nx@22.7.2": true
+  }
 }
