@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="550" viewBox="0 0 680 550" role="img" font-family="Arial, sans-serif">
+  <title>FIG. 4 — Web portal architecture</title>
+  <desc>Angular app shell with lazy-loaded feature routes. Feature components read from the TENANT_DOMAIN build-time constant. The scan route mounts a React island via ReactBridgeService which calls the FastAPI microservice at runtime.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="680" height="550" fill="#fff"/>
+  <text x="340" y="22" text-anchor="middle" font-size="12" fill="#555">FIG. 4 — Web portal architecture</text>
+
+  <!-- Build-time sources -->
+  <rect x="30" y="36" width="175" height="48" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.75"/>
+  <text x="118" y="56" text-anchor="middle" font-weight="500" font-size="13" fill="#085041">&lt;slug&gt;.ts snapshot</text>
+  <text x="118" y="72" text-anchor="middle" font-size="11" fill="#0F6E56">generated · build-time import</text>
+  <text x="30" y="92" font-size="10" fill="#aaa">environment.ts selects tenant</text>
+
+  <line x1="118" y1="84" x2="118" y2="108" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="30" y="108" width="175" height="48" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.75"/>
+  <text x="118" y="128" text-anchor="middle" font-weight="500" font-size="13" fill="#085041">DomainService</text>
+  <text x="118" y="146" text-anchor="middle" font-size="11" fill="#0F6E56">Angular DI · providedIn: root</text>
+
+  <!-- Angular Shell container -->
+  <rect x="20" y="178" width="640" height="322" rx="12" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="340" y="198" text-anchor="middle" font-size="12" fill="#888">Angular App Shell — routing · DI · NgZone · layout</text>
+
+  <!-- Router -->
+  <rect x="240" y="208" width="200" height="44" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.75"/>
+  <text x="340" y="228" text-anchor="middle" font-weight="500" font-size="14" fill="#3C3489">Angular Router</text>
+  <text x="340" y="244" text-anchor="middle" font-size="11" fill="#534AB7">lazy-loaded feature routes</text>
+
+  <!-- DomainService → Router -->
+  <path d="M118 156 L118 230 L238 230" fill="none" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Router → 4 components -->
+  <path d="M280 252 L280 290 L100 290 L100 312" fill="none" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+  <line x1="315" y1="252" x2="315" y2="312" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+  <line x1="365" y1="252" x2="365" y2="312" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+  <path d="M400" y1="252" L400 290 L578 290 L578 312" fill="none" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+  <path d="M400 252 L400 290 L578 290 L578 312" fill="none" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- 3 Angular components -->
+  <rect x="37"  y="312" width="127" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.75"/>
+  <text x="100" y="332" text-anchor="middle" font-weight="500" font-size="12" fill="#2C2C2A">NavComponent</text>
+  <text x="100" y="350" text-anchor="middle" font-size="10" fill="#5F5E5A">reads TENANT_DOMAIN</text>
+
+  <rect x="255" y="312" width="120" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.75"/>
+  <text x="315" y="332" text-anchor="middle" font-weight="500" font-size="12" fill="#2C2C2A">StatusComponent</text>
+  <text x="315" y="350" text-anchor="middle" font-size="10" fill="#5F5E5A">reads TENANT_DOMAIN</text>
+
+  <rect x="385" y="312" width="122" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.75"/>
+  <text x="446" y="332" text-anchor="middle" font-weight="500" font-size="12" fill="#2C2C2A">GlossaryComponent</text>
+  <text x="446" y="350" text-anchor="middle" font-size="10" fill="#5F5E5A">reads TENANT_DOMAIN</text>
+
+  <!-- React island boundary -->
+  <rect x="514" y="300" width="132" height="188" rx="8" fill="none" stroke="#EF9F27" stroke-width="1" stroke-dasharray="5 3"/>
+  <text x="580" y="292" text-anchor="middle" font-size="10" fill="#BA7517">React island boundary</text>
+
+  <!-- ScanComponent -->
+  <rect x="524" y="312" width="112" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.75"/>
+  <text x="580" y="332" text-anchor="middle" font-weight="500" font-size="13" fill="#633806">ScanComponent</text>
+  <text x="580" y="350" text-anchor="middle" font-size="11" fill="#854F0B">Angular host</text>
+
+  <line x1="580" y1="360" x2="580" y2="382" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- ReactBridgeService -->
+  <rect x="524" y="382" width="112" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.75"/>
+  <text x="580" y="400" text-anchor="middle" font-weight="500" font-size="12" fill="#633806">ReactBridgeService</text>
+  <text x="580" y="418" text-anchor="middle" font-size="10" fill="#854F0B">outside NgZone</text>
+
+  <line x1="580" y1="430" x2="580" y2="450" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="524" y="450" width="112" height="36" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.75"/>
+  <text x="580" y="472" text-anchor="middle" font-size="11" fill="#633806">createRoot() + render()</text>
+
+  <!-- IslandProps labels -->
+  <text x="504" y="398" text-anchor="end" font-size="10" fill="#888">IslandProps →</text>
+  <text x="504" y="412" text-anchor="end" font-size="10" fill="#888">tenantSlug</text>
+  <text x="504" y="426" text-anchor="end" font-size="10" fill="#888">apiBase</text>
+  <text x="504" y="440" text-anchor="end" font-size="10" fill="#888">onNavigate()</text>
+
+  <!-- Runtime API call -->
+  <line x1="580" y1="486" x2="580" y2="504" stroke="#888" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="37"  y="462" width="175" height="44" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.75"/>
+  <text x="125" y="482" text-anchor="middle" font-weight="500" font-size="13" fill="#712B13">POST /api/v1/scan/</text>
+  <text x="125" y="498" text-anchor="middle" font-size="11" fill="#993C1D">FastAPI microservice</text>
+  <path d="M514 505 L222 505" fill="none" stroke="#888" stroke-width="0.75" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="370" y="498" text-anchor="middle" font-size="10" fill="#888">runtime call (scan islands only)</text>
+
+  <!-- Legend -->
+  <line x1="30" y1="530" x2="70" y2="530" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+  <text x="80" y="534" font-size="11" fill="#555">build-time</text>
+  <line x1="180" y1="530" x2="220" y2="530" stroke="#888" stroke-width="0.75" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="230" y="534" font-size="11" fill="#555">runtime API call</text>
+  <text x="480" y="534" font-size="11" fill="#aaa">no runtime fetch for domain data</text>
+</svg>

@@ -1,0 +1,1113 @@
+{
+  "$schema": "../../data/tenant.schema.json",
+  "version": "1.0.0",
+  "tenant": {
+    "slug": "generic",
+    "brand_name": "Onboarded",
+    "cli_name": "ob",
+    "terminology": {
+      "operations": "operations",
+      "statuses": "policy status codes",
+      "products": "insurance product lines",
+      "queues": "message queues",
+      "portals": "white-label portals"
+    }
+  },
+  "config": {
+    "repos": {
+      "MSI-PAS": {
+        "env": "MSI_REPO_PAS",
+        "default": "MSI-PAS"
+      },
+      "MSI-PAS-CORE": {
+        "env": "MSI_REPO_CORE",
+        "default": "MSI-PAS-CORE"
+      },
+      "MSI-Widget": {
+        "env": "MSI_REPO_WIDGET",
+        "default": "MSI-Widget"
+      },
+      "MSI-QE": {
+        "env": "MSI_REPO_QE",
+        "default": "MSI-QE"
+      },
+      "PAS-APP-CONFIG": {
+        "env": "MSI_REPO_CONFIG",
+        "default": "PAS-APP-CONFIG"
+      }
+    }
+  },
+  "operations": {
+    "quote": {
+      "label": "Quote a new policy",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs",
+        "MSI-PAS:AdminPortal/Controllers/PolicySearchController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs"
+      ],
+      "queues": [
+        "bindquote-msg-queue",
+        "submission-msg-queue"
+      ],
+      "js": [
+        "msi-policysearch",
+        "msi-policy-renters-customer",
+        "msi-policy-h0flood-customer"
+      ]
+    },
+    "bind": {
+      "label": "Bind (activate) a policy",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.Bind.cs"
+      ],
+      "queues": [
+        "bindquote-msg-queue",
+        "bind-cert-add-msg-queue",
+        "background-process-job-msg-queue"
+      ],
+      "js": [
+        "msi-policy-renters-payment",
+        "msi-policy-h0flood-payment",
+        "msi-policy-h0home-admitted-payment"
+      ]
+    },
+    "endorse": {
+      "label": "Endorse (mid-term change) a policy",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs",
+        "MSI-PAS-CORE:MSI.Core.Apis/Integration/Flood/AppServices.Flood/Commands/Endorsement"
+      ],
+      "queues": [
+        "bindendorsement-msg-queue",
+        "bind-cert-endorsement-msg-queue"
+      ],
+      "js": [
+        "msi-policy-actions-nonmonetary-endorsement",
+        "msi-policy-policychangeendorsementquotes"
+      ]
+    },
+    "cancel": {
+      "label": "Cancel a policy",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs",
+        "MSI-PAS-CORE:MSI.Core.Apis/Integration/Flood/AppServices.Flood/Commands/Cancellation"
+      ],
+      "queues": [
+        "requestcancel-msg-queue",
+        "cancel-risk-msg-queue",
+        "nonpaycancel-msg-queue",
+        "companyrequestcancel-msg-queue"
+      ],
+      "js": [
+        "msi-policy-actions-reinstatepolicy"
+      ]
+    },
+    "reinstate": {
+      "label": "Reinstate a cancelled policy",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs",
+        "MSI-PAS-CORE:MSI.Core.Apis/Integration/Flood/AppServices.Flood/Commands/Policy/Reinstate"
+      ],
+      "queues": [
+        "reinstatement-msg-queue",
+        "bind-cert-reinstatement-msg-queue"
+      ],
+      "js": [
+        "msi-policy-actions-reinstatepolicy"
+      ]
+    },
+    "renew": {
+      "label": "Renew a policy at term end",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PolicyRenewalController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.Renewals",
+        "MSI-PAS-CORE:MSI.Core.WebJob.RenewalOffer",
+        "MSI-PAS-CORE:MSI.Core.WebJob.HomeownersRenewalOffer"
+      ],
+      "queues": [
+        "renewal-msg-queue",
+        "initiate-renew-msg-queue",
+        "initiate-renewaloffer-msg-queue",
+        "autobind-renewaloffer-msg-queue",
+        "expiration-msg-queue"
+      ],
+      "js": []
+    },
+    "nonpay_cancel": {
+      "label": "Non-pay cancellation",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.NonPayCancel",
+        "MSI-PAS-CORE:MSI.Core.WebJob.NonPayExpire",
+        "MSI-PAS-CORE:MSI.Core.WebJob.BillingNOP"
+      ],
+      "queues": [
+        "nonpaycancel-msg-queue",
+        "pendingcancelrecission-msg-queue",
+        "pendingnonpaycancel-msg-queue"
+      ],
+      "js": []
+    },
+    "nonrenew": {
+      "label": "Non-renewal",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.NonRenewals",
+        "MSI-PAS-CORE:MSI.Core.WebJob.PendingNonRenewals"
+      ],
+      "queues": [
+        "nonrenewal-msg-queue",
+        "pendingnonrenewal-msg-queue"
+      ],
+      "js": []
+    },
+    "rewrite": {
+      "label": "Rewrite / re-quote existing policy",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs"
+      ],
+      "queues": [
+        "rewrite-msg-queue"
+      ],
+      "js": []
+    },
+    "suspense": {
+      "label": "Policy in suspense / awaiting payment",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.ProcessSuspense"
+      ],
+      "queues": [
+        "background-process-job-msg-queue"
+      ],
+      "js": []
+    },
+    "submission": {
+      "label": "Commercial submission / UW workflow",
+      "controllers": [
+        "MSI-PAS:CommercialAgentPortal/Controllers/SubmissionController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/SubmissionController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs"
+      ],
+      "queues": [
+        "submission-msg-queue"
+      ],
+      "js": [
+        "msi-commercial-product-submission"
+      ]
+    },
+    "declination": {
+      "label": "Underwriter declination",
+      "controllers": [
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/DeclinationController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/Policy/PolicyService.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "payment": {
+      "label": "Take / process a payment",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PaymentController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/PaymentController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/BillingService.cs",
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/PaymentService.cs"
+      ],
+      "queues": [
+        "process-gateway-webhook-events-msg-queue"
+      ],
+      "js": [
+        "msi-policy-renters-payment",
+        "msi-policy-h0flood-payment",
+        "msi-policy-h0home-admitted-payment",
+        "msi-policy-h0home-es-payment"
+      ]
+    },
+    "refund": {
+      "label": "Refund a payment",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/RefundController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/RefundController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/CheckIssuingService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.ProcessRefunds"
+      ],
+      "queues": [],
+      "js": [
+        "msi-refund-add-bank-account",
+        "msi-refund-payment",
+        "msi-policy-actions-refund"
+      ]
+    },
+    "installment": {
+      "label": "Installment billing schedule",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PaymentController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.Installment"
+      ],
+      "queues": [
+        "background-process-job-msg-queue"
+      ],
+      "js": [
+        "msi-policy-view-billinghistory"
+      ]
+    },
+    "billing_history": {
+      "label": "View billing / payment history",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/BillingService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-policy-view-billinghistory",
+        "msi-policy-view-transactionhistory"
+      ]
+    },
+    "credit_card": {
+      "label": "Add / update credit card",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PaymentController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/PaymentService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-policy-actions-addcreditcard",
+        "msi-master-actions-addcreditcard"
+      ]
+    },
+    "ach": {
+      "label": "ACH / bank account payment",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PaymentController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/PaymentService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-master-actions-addach",
+        "msi-refund-add-bank-account"
+      ]
+    },
+    "commission": {
+      "label": "Agency commission",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/AgencyController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/AgencyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/CommissionService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.AgencyCommissionDownload"
+      ],
+      "queues": [],
+      "js": [
+        "msi-agency-commission-search",
+        "msi-mga-commission-search"
+      ]
+    },
+    "chargeback": {
+      "label": "Payment chargeback",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PaymentController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/BillingService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-master-actions-chargeback"
+      ]
+    },
+    "fnol": {
+      "label": "First Notice of Loss / file a claim",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/FnolController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/FnolController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/FnolQueueController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/FNOLService.cs",
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/SnapsheetAPIService.cs"
+      ],
+      "queues": [
+        "initiate-fnol-submission-msg-queue",
+        "initiate-fnol-association-msg-queue"
+      ],
+      "js": [
+        "msi-fnol-fileaclaim",
+        "msi-fnol-search",
+        "msi-fnol-summary",
+        "msi-fnol-queue",
+        "msi-fnol-attachment"
+      ]
+    },
+    "claim": {
+      "label": "View / manage a claim",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/ClaimController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/ClaimService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.ClaimsLoad"
+      ],
+      "queues": [],
+      "js": [
+        "msi-claim",
+        "msi-claimdocumentsearch",
+        "msi-escalateaclaim"
+      ]
+    },
+    "snapsheet": {
+      "label": "Snapsheet integration (claim photos/docs)",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/FnolController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/SnapsheetAPIService.cs"
+      ],
+      "queues": [
+        "initiate-fnol-association-msg-queue"
+      ],
+      "js": []
+    },
+    "ofac": {
+      "label": "OFAC sanctions screening",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/CommercialBasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.OFAC"
+      ],
+      "queues": [
+        "commercial-ofac-validation-msg-queue"
+      ],
+      "js": []
+    },
+    "agency": {
+      "label": "Agency / agent management",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/AgencyController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/AgencyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/AgencyService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.AgencyDownload"
+      ],
+      "queues": [
+        "agency-sync-msg-queue",
+        "agency-file-download-msg-queue"
+      ],
+      "js": [
+        "msi-agency-add",
+        "msi-agency-search",
+        "msi-agencys"
+      ]
+    },
+    "appointment": {
+      "label": "Agent appointment",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/AgencyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/AgencyService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-appointment-add",
+        "msi-appointment-search",
+        "msi-appointments"
+      ]
+    },
+    "community": {
+      "label": "Property community (PMC/apartment complex)",
+      "controllers": [
+        "MSI-PAS:CommercialAgentPortal/Controllers/CommunityController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/CommunityController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/AddressService.cs",
+        "MSI-PAS-CORE:MSI.Core.Apis/Integration/GroupRenters/AppServices.GroupRenters/Commands/Party/GetOrCreateCommunity"
+      ],
+      "queues": [],
+      "js": [
+        "msi-community",
+        "msi-master-certificate-search"
+      ]
+    },
+    "document": {
+      "label": "Policy documents / e-delivery",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/DocumentGenerationService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.DocumentTransfer"
+      ],
+      "queues": [
+        "print-request-msg-queue",
+        "print-response-msg-queue"
+      ],
+      "js": [
+        "msi-document",
+        "msi-commercial-policy-documents"
+      ]
+    },
+    "print": {
+      "label": "Print dashboard / print request",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PrintController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/PrintController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.PrintItemsSend",
+        "MSI-PAS-CORE:MSI.Core.WebJob.PrintItemsResult"
+      ],
+      "queues": [
+        "print-request-msg-queue",
+        "print-response-msg-queue"
+      ],
+      "js": [
+        "msi-print-dashboard",
+        "msi-print-processprint"
+      ]
+    },
+    "econsent": {
+      "label": "E-consent / paperless enrollment",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.EConsentNotification"
+      ],
+      "queues": [
+        "background-process-job-msg-queue"
+      ],
+      "js": []
+    },
+    "signature": {
+      "label": "DocuSign / electronic signature",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/SignatureService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.SignatureStatus"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "recording": {
+      "label": "Call recording download",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/RecordingController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/RecordingController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.DownloadRecordings",
+        "MSI-PAS-CORE:MSI.Core.WebJob.RecordingConversion"
+      ],
+      "queues": [],
+      "js": [
+        "msi-recordingitem"
+      ]
+    },
+    "rating": {
+      "label": "Rating / premium calculation",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/RatingService.cs",
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/ProductService.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "underwriting": {
+      "label": "Underwriting review",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/UnderwritingCompanyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/UnderwritingService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-underwritingcompany-operations"
+      ]
+    },
+    "moratorium": {
+      "label": "Moratorium (geographic write restriction)",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/MoratoriumController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/MoratoriumController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.Moratorium"
+      ],
+      "queues": [],
+      "js": [
+        "msi-add-product-moratorium"
+      ]
+    },
+    "customer_login": {
+      "label": "Customer portal login / auth",
+      "controllers": [
+        "MSI-PAS:MSI.CustomerPortal/Controllers/AuthenticationController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/CustomerService.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "widget": {
+      "label": "Customer-facing quote widget (SPA)",
+      "controllers": [
+        "MSI-Widget:src/app",
+        "MSI-Widget:MSI.WidgetAPI"
+      ],
+      "services": [
+        "MSI-Widget:MSI.WidgetAPI/BusinessLayer/BusinessLayer.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "mfa": {
+      "label": "Multi-factor authentication",
+      "controllers": [
+        "MSI-PAS:MSI.CustomerPortal/Controllers/MFAController.cs",
+        "MSI-PAS:AdminPortal/Controllers/LoginController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/MFAService.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "sso": {
+      "label": "Single sign-on / Azure AD OIDC",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/LoginController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/LoginController.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "paynow": {
+      "label": "Pay Now (customer one-time payment)",
+      "controllers": [
+        "MSI-PAS:MSI.CustomerPortal/Controllers/PayNowController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Customer/Controllers/PaymentController.cs"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "lexisnexis": {
+      "label": "LexisNexis CLUE report",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/LexisNexisService.cs",
+        "MSI-PAS-CORE:MSI.Core.Function.LexisNexisCLUP"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "appfolio": {
+      "label": "AppFolio PMC integration",
+      "controllers": [
+        "MSI-PAS-CORE:MSI.Core.Apis/AppFolio/AppServices.AppFolio"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.Apis/AppFolio"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "sendgrid": {
+      "label": "SendGrid email delivery",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/EmailService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.ReminderEmails"
+      ],
+      "queues": [
+        "send-reminder-emails-msg-queue"
+      ],
+      "js": []
+    },
+    "surplus_lines": {
+      "label": "Surplus lines tax & filing",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/BasePolicyController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.ExternalServices/InsCipherService.cs",
+        "MSI-PAS-CORE:MSI.Core.WebJob.SurplusLinesReporting"
+      ],
+      "queues": [],
+      "js": []
+    },
+    "pje": {
+      "label": "Process Job Execution (async job log)",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/AdminController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/AdminController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.PJEFailures"
+      ],
+      "queues": [
+        "background-process-job-msg-queue"
+      ],
+      "js": [
+        "msi-admin-processjobexecution",
+        "msi-admin-runprocessjobexecution"
+      ]
+    },
+    "policy_search": {
+      "label": "Policy search",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/PolicySearchController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/PolicySearchController.cs"
+      ],
+      "services": [],
+      "queues": [],
+      "js": [
+        "msi-policysearch",
+        "msi-policysearch-typeahead"
+      ]
+    },
+    "user_mgmt": {
+      "label": "User / agent user management",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/AdminController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/PartyService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-user-add",
+        "msi-searchuser"
+      ]
+    },
+    "master_policy": {
+      "label": "Master policy (community-level)",
+      "controllers": [
+        "MSI-PAS:AdminPortal/Controllers/MasterController.cs",
+        "MSI-PAS-CORE:MSI.Core.Portals/MSI.Core.Portal.Admin/Controllers/MasterController.cs"
+      ],
+      "services": [
+        "MSI-PAS-CORE:MSI.Core.WebJob.MasterPolicy",
+        "MSI-PAS-CORE:MSI.Core.BusinessService/Implementation/MasterService.cs"
+      ],
+      "queues": [],
+      "js": [
+        "msi-master-policy-search",
+        "msi-master-certificate-search",
+        "msi-master-liability"
+      ]
+    }
+  },
+  "statuses": {
+    "PASTE_FROM_MSI_DOMAIN_JSON": "see note below"
+  },
+  "products": {},
+  "portals": {},
+  "glossary": {
+    "bind": {
+      "label": "Bind",
+      "definition": "Convert a quote (status=1) into an active policy (status=2). Payment is collected, coverage becomes effective. Triggers BindPolicy command -> bindquote-msg-queue -> MonitorQueues WebJob.",
+      "see_also": [
+        "quote",
+        "endorse"
+      ]
+    },
+    "endorse": {
+      "label": "Endorse",
+      "definition": "Mid-term policy change after binding. Examples: address change, coverage change, add mortgagee. Creates EndorsementScenario (status=13), then binds via bindendorsement-msg-queue.",
+      "see_also": [
+        "bind"
+      ]
+    },
+    "fnol": {
+      "label": "FNOL",
+      "definition": "First Notice of Loss. The initial report of a claim event by the insured. Triggers FNOL submission -> Snapsheet -> initiate-fnol-submission-msg-queue.",
+      "see_also": []
+    },
+    "cancel": {
+      "label": "Cancel",
+      "definition": "Terminate coverage before policy expiration. Types: non-pay cancel (NPC), company request cancel, insured request cancel. Routes through requestcancel-msg-queue or nonpaycancel-msg-queue.",
+      "see_also": [
+        "nonpay_cancel",
+        "reinstate",
+        "nonrenewal"
+      ]
+    },
+    "reinstate": {
+      "label": "Reinstate",
+      "definition": "Restore a cancelled policy. Only valid within reinstatement window. Routes through reinstatement-msg-queue.",
+      "see_also": [
+        "cancel"
+      ]
+    },
+    "renew": {
+      "label": "Renew",
+      "definition": "Issue a new policy term when current term expires. RenewalOffer WebJob creates the offer; Renewals WebJob processes the bind.",
+      "see_also": [
+        "nonrenewal",
+        "bind"
+      ]
+    },
+    "nonpay_cancel": {
+      "label": "Non-Pay Cancel",
+      "definition": "Cancellation triggered by missed payment. NonPayCancel WebJob + BillingNOP WebJob. Insured gets grace period before final cancel.",
+      "see_also": [
+        "cancel",
+        "installment"
+      ]
+    },
+    "rewrite": {
+      "label": "Rewrite",
+      "definition": "Cancel current policy and create a new one, typically for major changes or product migrations. Routes through rewrite-msg-queue.",
+      "see_also": [
+        "cancel",
+        "bind"
+      ]
+    },
+    "quote": {
+      "label": "Quote",
+      "definition": "A priced but unbound insurance application. Status=1. No coverage until bound. Expires if not bound.",
+      "see_also": [
+        "bind",
+        "premium"
+      ]
+    },
+    "premium": {
+      "label": "Premium",
+      "definition": "The price charged for insurance coverage. Calculated by RatingService using product-specific rate books.",
+      "see_also": [
+        "deductible",
+        "installment",
+        "commission"
+      ]
+    },
+    "deductible": {
+      "label": "Deductible",
+      "definition": "The amount the insured pays out-of-pocket before insurance pays. Part of the policy coverage terms.",
+      "see_also": [
+        "premium"
+      ]
+    },
+    "pje": {
+      "label": "PJE",
+      "definition": "Process Job Execution. The audit trail for every async background job. Visible at /Admin/ProcessJobExecution.",
+      "see_also": []
+    },
+    "acord": {
+      "label": "ACORD",
+      "definition": "Insurance data interchange standard. MSI uses ACORD XML for Widget<->API communication. AcordBM.cs is the 10k-line translation layer.",
+      "see_also": []
+    },
+    "master_policy": {
+      "label": "Master Policy",
+      "definition": "A community-level policy covering multiple units (apartment complex). Individual tenants get certificates underneath. MasterController handles this.",
+      "see_also": [
+        "certificate",
+        "pmc"
+      ]
+    },
+    "certificate": {
+      "label": "Certificate",
+      "definition": "An individual tenant's coverage document under a master policy. Part of the GroupRenters product.",
+      "see_also": [
+        "master_policy"
+      ]
+    },
+    "surplus_lines": {
+      "label": "Surplus Lines",
+      "definition": "Insurance placed with non-admitted (E&S) carriers. Requires surplus lines tax reporting via InsCipher. HomeownersES products are surplus lines.",
+      "see_also": [
+        "es",
+        "admitted"
+      ]
+    },
+    "admitted": {
+      "label": "Admitted",
+      "definition": "Insurance placed with state-regulated carriers. HomeownersAdmitted products. More regulated than E&S.",
+      "see_also": [
+        "surplus_lines",
+        "es"
+      ]
+    },
+    "es": {
+      "label": "E&S",
+      "definition": "Excess & Surplus. Non-admitted insurance. Less regulated. HomeownersESHO3, HomeownersESHO5, HomeownersESMS, HomeownersESREI.",
+      "see_also": [
+        "surplus_lines",
+        "admitted"
+      ]
+    },
+    "pmc": {
+      "label": "PMC",
+      "definition": "Property Management Company. Manages apartment communities. GroupRenters and AppFolio integrations serve PMC clients.",
+      "see_also": [
+        "master_policy",
+        "certificate"
+      ]
+    },
+    "dta": {
+      "label": "DTA",
+      "definition": "Direct-to-Agent. A flood portal variant where the agent is the primary user.",
+      "see_also": [
+        "dtc"
+      ]
+    },
+    "dtc": {
+      "label": "DTC",
+      "definition": "Direct-to-Consumer. A flood portal variant where the end customer self-serves.",
+      "see_also": [
+        "dta"
+      ]
+    },
+    "moratorium": {
+      "label": "Moratorium",
+      "definition": "A geographic restriction on writing new policies, typically after a natural disaster. MoratoriumController + Moratorium WebJob.",
+      "see_also": []
+    },
+    "ofac": {
+      "label": "OFAC",
+      "definition": "Office of Foreign Assets Control. Sanctions screening on new policies. OFAC WebJob + commercial-ofac-validation-msg-queue.",
+      "see_also": []
+    },
+    "clue": {
+      "label": "CLUE",
+      "definition": "Comprehensive Loss Underwriting Exchange. LexisNexis integration that pulls prior claims history during underwriting.",
+      "see_also": []
+    },
+    "suspense": {
+      "label": "Suspense",
+      "definition": "A policy hold status (code=36) where automated processing is paused. ProcessSuspense WebJob resolves them.",
+      "see_also": []
+    },
+    "nonrenewal": {
+      "label": "Non-Renewal",
+      "definition": "Decision not to renew a policy at expiration. PendingNonRenewal -> NonRenewal WebJob -> nonrenewal-msg-queue.",
+      "see_also": [
+        "renew",
+        "cancel"
+      ]
+    },
+    "commission": {
+      "label": "Commission",
+      "definition": "Compensation paid to agents for written premium. CommissionService + AgencyCommissionDownload WebJob.",
+      "see_also": [
+        "premium"
+      ]
+    },
+    "installment": {
+      "label": "Installment",
+      "definition": "A payment plan where premium is paid in scheduled partial amounts. Installment WebJob processes scheduled charges.",
+      "see_also": [
+        "premium",
+        "nonpay_cancel"
+      ]
+    },
+    "econsent": {
+      "label": "eConsent",
+      "definition": "Electronic consent to receive policy documents via email instead of paper. EConsentNotification WebJob.",
+      "see_also": []
+    }
+  },
+  "queues": {
+    "create-queue": {
+      "label": "Create Queue",
+      "consumer": "REPO-B:workers/CreateWorker.cs",
+      "webjobs": "CreateWorker",
+      "description": "Handles resource create events"
+    },
+    "update-queue": {
+      "label": "Update Queue",
+      "consumer": "REPO-B:workers/UpdateWorker.cs",
+      "webjobs": "UpdateWorker",
+      "description": "Handles resource update events"
+    },
+    "delete-queue": {
+      "label": "Delete Queue",
+      "consumer": "REPO-B:workers/DeleteWorker.cs",
+      "webjobs": "DeleteWorker",
+      "description": "Handles resource delete events"
+    },
+    "export-queue": {
+      "label": "Export Queue",
+      "consumer": "REPO-B:workers/ExportWorker.cs",
+      "webjobs": "ExportWorker",
+      "description": "Processes export jobs"
+    },
+    "import-queue": {
+      "label": "Import Queue",
+      "consumer": "REPO-B:workers/ImportWorker.cs",
+      "webjobs": "ImportWorker",
+      "description": "Processes import jobs"
+    },
+    "notify-queue": {
+      "label": "Notify Queue",
+      "consumer": "REPO-B:workers/NotifyWorker.cs",
+      "webjobs": "NotifyWorker",
+      "description": "Sends notification events"
+    }
+  },
+  "qe_tests": {
+    "quote": {
+      "paths": [
+        "REPO-A:tests/quote/Quote.spec.ts"
+      ]
+    },
+    "bind": {
+      "paths": [
+        "REPO-A:tests/bind/Bind.spec.ts"
+      ]
+    },
+    "endorse": {
+      "paths": [
+        "REPO-A:tests/endorse/Endorse.spec.ts"
+      ]
+    }
+  },
+  "scan_rules": {
+    "hardcoded_secret": {
+      "label": "Hardcoded credential",
+      "pattern": "password\\s*=\\s*['\"][^'\"]{4,}['\"]",
+      "severity": "critical",
+      "category": "security",
+      "scope": [
+        "*.cs",
+        "*.ts",
+        "*.py",
+        "*.json"
+      ],
+      "repos": [],
+      "exclude": [
+        "**/tests/**",
+        "**/fixtures/**"
+      ],
+      "reference": "OWASP A02:2021",
+      "fixHint": "Move to environment variables or a secrets manager."
+    },
+    "console_log": {
+      "label": "console.log in production code",
+      "pattern": "console\\.log\\(",
+      "severity": "warning",
+      "category": "convention",
+      "scope": [
+        "*.ts",
+        "*.js"
+      ],
+      "repos": [],
+      "exclude": [
+        "**/tests/**",
+        "**/spec/**"
+      ],
+      "reference": "internal",
+      "fixHint": "Replace with structured logger."
+    },
+    "todo_comment": {
+      "label": "TODO without ticket reference",
+      "pattern": "TODO(?!.*#\\d{4,})",
+      "severity": "info",
+      "category": "convention",
+      "scope": [
+        "*.cs",
+        "*.ts",
+        "*.py"
+      ],
+      "repos": [],
+      "exclude": [],
+      "reference": "internal",
+      "fixHint": "Add a ticket reference: TODO #12345"
+    },
+    "direct_db_connection": {
+      "label": "Direct database connection string",
+      "pattern": "Server=.*;Database=.*;",
+      "severity": "error",
+      "category": "security",
+      "scope": [
+        "*.cs",
+        "*.json",
+        "*.config"
+      ],
+      "repos": [],
+      "exclude": [
+        "**/tests/**"
+      ],
+      "reference": "internal",
+      "fixHint": "Use App Configuration or Key Vault reference."
+    },
+    "missing_cancellation_token": {
+      "label": "Async method missing CancellationToken",
+      "pattern": "public async Task",
+      "severity": "warning",
+      "category": "architecture",
+      "scope": [
+        "*.cs"
+      ],
+      "repos": [],
+      "exclude": [
+        "**/tests/**",
+        "**/migrations/**"
+      ],
+      "reference": "internal",
+      "fixHint": "Add CancellationToken ct = default as the last parameter."
+    }
+  }
+}

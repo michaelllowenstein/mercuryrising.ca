@@ -1,0 +1,33 @@
+
+# Node
+node_modules/
+dist/
+.npm/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+
+# Nx
+.nx/cache
+.nx/workspace-data
+
+# Generated adapters — always re-derived from domain.json, never committed
+packages/shared/src/lib/tenants/
+
+# Local
+.env
+.env.local
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+*.swp

@@ -1,0 +1,98 @@
+{
+  "tenant": {
+    "slug": "test",
+    "brand_name": "TestCo Platform",
+    "cli_name": "tco",
+    "version": "1.0.0"
+  },
+  "config": {
+    "repos": {
+      "TCO-API": {
+        "env_var": "TCO_API_DIR",
+        "default_dir": "/tmp/tco-api"
+      },
+      "TCO-WEB": {
+        "env_var": "TCO_WEB_DIR",
+        "default_dir": "/tmp/tco-web"
+      }
+    }
+  },
+  "operations": {
+    "bind": {
+      "label": "Bind a policy",
+      "controllers": ["TCO-API:Controllers/PolicyBindController.cs"],
+      "services":    ["TCO-API:Services/PolicyBindService.cs"],
+      "queues":      [],
+      "js_entry":    []
+    },
+    "quote": {
+      "label": "Quote a policy",
+      "controllers": ["TCO-API:Controllers/QuoteController.cs"],
+      "services":    ["TCO-API:Services/QuoteService.cs"],
+      "queues":      [],
+      "js_entry":    []
+    },
+    "payment": {
+      "label": "Process payment",
+      "controllers": ["TCO-API:Controllers/PaymentController.cs"],
+      "services":    ["TCO-API:Services/PaymentService.cs"],
+      "queues":      ["TCO-API:Queues/PaymentQueue.cs"],
+      "js_entry":    []
+    },
+    "reinstate": {
+      "label": "Reinstate a lapsed policy",
+      "controllers": ["TCO-API:Controllers/ReinstateController.cs"],
+      "services":    [],
+      "queues":      [],
+      "js_entry":    []
+    }
+  },
+  "statuses": {
+    "100": "Pending",
+    "200": "Active",
+    "300": "Lapsed",
+    "400": "Cancelled"
+  },
+  "glossary": {
+    "fnol": {
+      "definition": "First Notice of Loss — the initial report of a claim event.",
+      "see_also": []
+    },
+    "bind": {
+      "definition": "The act of converting a quote into an active policy.",
+      "see_also": ["quote"]
+    }
+  },
+  "scan_rules": [
+    {
+      "id": "no_hardcoded_secrets",
+      "label": "No hardcoded secrets",
+      "pattern": "(password|secret|api_key|token)\\s*[=:]\\s*[\"'][^\"']{4,}[\"']",
+      "severity": "critical",
+      "category": "security",
+      "scope": ["*.cs", "*.ts", "*.py"],
+      "excludes": ["*Test*", "*Spec*"],
+      "fix_hint": "Use environment variables or a secrets manager."
+    },
+    {
+      "id": "no_empty_catch",
+      "label": "No empty catch blocks",
+      "pattern": "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}",
+      "severity": "warning",
+      "category": "reliability",
+      "scope": ["*.cs"],
+      "excludes": [],
+      "fix_hint": "Log or handle the exception; never swallow it silently."
+    },
+    {
+      "id": "no_todo_without_ticket",
+      "label": "TODO must reference a ticket",
+      "pattern": "TODO(?!.*[A-Z]+-[0-9]+)",
+      "severity": "info",
+      "category": "hygiene",
+      "scope": ["*.cs", "*.ts"],
+      "excludes": [],
+      "fix_hint": "Add a ticket reference, e.g. // TODO TCO-1234: ..."
+    }
+  ]
+}

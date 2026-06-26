@@ -1,0 +1,23 @@
+{
+  "name": "@onboarded/core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "root": "packages/core",
+  "targets": {
+    "validate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "python3 packages/core/scripts/validate_domain.py --all",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "command": "python3 packages/core/scripts/generate_adapters.py --all",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

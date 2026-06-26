@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="590" viewBox="0 0 680 590" role="img" font-family="Arial, sans-serif" font-size="13">
+  <title>FIG. 5 — Static analysis engine flow</title>
+  <desc>ScanRequest filters rules from TenantDomain. For each rule: base64-decode pattern, compile regex, traverse filesystem, collect ScanFinding. Result aggregation returns ScanResult with max_severity and clean status.</desc>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="680" height="590" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="340" y="22" text-anchor="middle" font-size="12" fill="#555">FIG. 5 — Static analysis engine flow</text>
+
+  <!-- ScanRequest -->
+  <rect x="160" y="36" width="360" height="52" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.75"/>
+  <text x="340" y="60" text-anchor="middle" font-weight="500" font-size="14" fill="#3C3489">ScanRequest</text>
+  <text x="340" y="78" text-anchor="middle" font-size="12" fill="#534AB7">rule_ids · severity · category · paths</text>
+
+  <line x1="340" y1="88" x2="340" y2="112" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Filter rules -->
+  <rect x="160" y="112" width="360" height="52" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.75"/>
+  <text x="340" y="136" text-anchor="middle" font-weight="500" font-size="14" fill="#085041">Filter rules from TenantDomain</text>
+  <text x="340" y="154" text-anchor="middle" font-size="12" fill="#0F6E56">MSI: 13 rules · Generic: 5 rules · any tenant: N rules</text>
+
+  <line x1="340" y1="164" x2="340" y2="190" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Loop boundary -->
+  <rect x="40" y="190" width="600" height="248" rx="10" fill="none" stroke="#888" stroke-width="0.75" stroke-dasharray="5 4"/>
+  <text x="58" y="210" font-size="11" fill="#888">for each rule</text>
+
+  <!-- base64 decode -->
+  <rect x="160" y="212" width="360" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.75"/>
+  <text x="340" y="234" text-anchor="middle" font-weight="500" font-size="14" fill="#633806">base64-decode pattern</text>
+  <text x="340" y="250" text-anchor="middle" font-size="12" fill="#854F0B">field[5] · base64 -d · FromBase64String()</text>
+
+  <line x1="340" y1="260" x2="340" y2="282" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Compile regex -->
+  <rect x="200" y="282" width="280" height="44" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.75"/>
+  <text x="340" y="302" text-anchor="middle" font-weight="500" font-size="14" fill="#633806">Compile regex</text>
+  <text x="340" y="318" text-anchor="middle" font-size="12" fill="#854F0B">re.compile() · ERE · IGNORECASE</text>
+
+  <line x1="340" y1="326" x2="340" y2="348" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Traverse filesystem -->
+  <rect x="160" y="348" width="360" height="48" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.75"/>
+  <text x="340" y="368" text-anchor="middle" font-weight="500" font-size="14" fill="#633806">Traverse filesystem</text>
+  <text x="340" y="386" text-anchor="middle" font-size="12" fill="#854F0B">scope globs · exclude patterns · skip node_modules obj bin</text>
+
+  <!-- Match fork -->
+  <line x1="340" y1="396" x2="340" y2="416" stroke="#555" stroke-width="1"/>
+  <text x="340" y="430" text-anchor="middle" font-size="12" fill="#555">line match?</text>
+
+  <!-- yes branch right -->
+  <path d="M445 423 L510 423 L510 456" fill="none" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+  <text x="476" y="415" font-size="11" fill="#555">yes</text>
+
+  <!-- no branch left -->
+  <path d="M235 423 L170 423 L170 456" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="200" y="415" font-size="11" fill="#888">no</text>
+  <text x="115" y="470" text-anchor="middle" font-size="12" fill="#888">next file</text>
+  <path d="M170 484 L56 484 L56 236 L158 236" fill="none" stroke="#888" stroke-width="0.75" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+  <!-- ScanFinding -->
+  <rect x="454" y="456" width="148" height="50" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.75"/>
+  <text x="528" y="478" text-anchor="middle" font-weight="500" font-size="14" fill="#791F1F">ScanFinding</text>
+  <text x="528" y="496" text-anchor="middle" font-size="12" fill="#A32D2D">rule_id · file · line · match_text</text>
+
+  <!-- Finding to aggregation -->
+  <path d="M528 506 L528 526 L340 526" fill="none" stroke="#555" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Result aggregation -->
+  <rect x="160" y="526" width="360" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.75"/>
+  <text x="340" y="548" text-anchor="middle" font-weight="500" font-size="14" fill="#2C2C2A">Result aggregation</text>
+  <text x="340" y="566" text-anchor="middle" font-size="12" fill="#5F5E5A">max_severity · duration_ms · clean: bool</text>
+
+  <!-- Exit codes -->
+  <text x="340" y="588" text-anchor="middle" font-size="11" fill="#888">exit 0 clean · exit 1 critical · exit 2 error · exit 3 warning/info</text>
+</svg>

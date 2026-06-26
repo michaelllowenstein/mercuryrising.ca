@@ -1,0 +1,9 @@
+# Dev overrides: API hot-reload; portal served by ng serve locally
+services:
+  api:
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./packages/api:/app
+      - ./packages/core:/core:ro
+  portal:
+    profiles: ["prod-portal"]

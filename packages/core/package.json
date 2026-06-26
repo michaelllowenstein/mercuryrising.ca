@@ -1,0 +1,9 @@
+{
+  "name": "@onboarded/core",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "validate": "python3 scripts/validate_domain.py --all",
+    "generate": "python3 scripts/generate_adapters.py --all"
+  }
+}
