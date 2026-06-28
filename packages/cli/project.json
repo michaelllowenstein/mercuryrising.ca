@@ -1,0 +1,19 @@
+{
+  "name": "@onboarded/cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "root": "packages/cli",
+  "targets": {
+    "test-bats": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "bats packages/cli/tests/bats/nav/test_nav_generic.bats --formatter tap",
+          "bats packages/cli/tests/bats/nav/test_nav_msi.bats --formatter tap",
+          "bats packages/cli/tests/bats/scan/test_scan_msi.bats --formatter tap"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}
