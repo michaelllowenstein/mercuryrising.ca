@@ -1,0 +1,6 @@
+{
+  "name": "@onboarded/cli",
+  "version": "1.0.0",
+  "description": "Onboarded CLI — Zsh + PowerShell shell engines",
+  "private": true
+}

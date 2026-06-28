@@ -1,0 +1,6 @@
+{
+  "database": {
+    "password": "production_password_here",
+    "connectionString": "Server=msi-sql-prod;Database=MSI_PAS;Password=Pa$$w0rd!"
+  }
+}
