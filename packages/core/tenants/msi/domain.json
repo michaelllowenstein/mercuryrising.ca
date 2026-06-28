@@ -1547,5 +1547,186 @@
       "reference": "internal",
       "fixHint": "Add CancellationToken ct = default as the last parameter."
     }
+  },
+  "db_schema": {
+    "policy.PolicyTermSnapshot": {
+      "confirmed_date": "2026-06-22",
+      "confirmed_ticket": "107687",
+      "notes": "IsActivePolicyTermSnapshot = 0 for all rows = Cluster C",
+      "columns": [
+        { "name": "PolicyTermSnapshotID",              "type": "int",           "nullable": false },
+        { "name": "PolicyTermID",                       "type": "int",           "nullable": false },
+        { "name": "PolicyTermSnapshotSequenceNumber",   "type": "smallint",      "nullable": false },
+        { "name": "IsActivePolicyTermSnapshot",         "type": "bit",           "nullable": false },
+        { "name": "PolicyStatusCode",                   "type": "tinyint",       "nullable": false },
+        { "name": "CreatedDate",                        "type": "smalldatetime", "nullable": false },
+        { "name": "LastUpdateDate",                     "type": "smalldatetime", "nullable": true  },
+        { "name": "LastUpdateByPartyID",                "type": "int",           "nullable": true  },
+        { "name": "RecordLastModifiedBy",               "type": "nvarchar",      "nullable": false }
+      ]
+    },
+    "customer.CustomerAddress": {
+      "confirmed_date": "2026-06-24",
+      "confirmed_ticket": "96985",
+      "columns": [
+        { "name": "CustomerAddressID",    "type": "int",           "nullable": false },
+        { "name": "CustomerID",           "type": "int",           "nullable": false },
+        { "name": "AddressLine1",         "type": "nvarchar",      "nullable": true  },
+        { "name": "AddressLine2",         "type": "nvarchar",      "nullable": true  },
+        { "name": "City",                 "type": "nvarchar",      "nullable": true  },
+        { "name": "StateCode",            "type": "nvarchar",      "nullable": true  },
+        { "name": "ZipCode5",             "type": "nvarchar",      "nullable": true  },
+        { "name": "IsDeleted",            "type": "bit",           "nullable": false },
+        { "name": "AddressTypeCode",      "type": "tinyint",       "nullable": true  },
+        { "name": "LastUpdateDate",       "type": "smalldatetime", "nullable": true  },
+        { "name": "LastUpdateByPartyID",  "type": "int",           "nullable": true  }
+      ]
+    },
+    "policy.PolicyTermSnapshotCustomer": {
+      "confirmed_date": "2026-06-24",
+      "confirmed_ticket": "96985",
+      "notes": "PK name to confirm on next Q0 — may not be PolicyTermSnapshotCustomerID",
+      "columns": [
+        { "name": "PolicyTermSnapshotID",       "type": "int",     "nullable": false },
+        { "name": "CustomerID",                 "type": "int",     "nullable": false },
+        { "name": "CustomerTypeCode",           "type": "tinyint", "nullable": false },
+        { "name": "IsDelayedPhysicalDelete",    "type": "bit",     "nullable": true  }
+      ]
+    },
+    "policy.PolicyTermSnapshotDeductible": {
+      "confirmed_date": "2026-05-07",
+      "confirmed_ticket": "106367",
+      "columns": [
+        { "name": "PolicyTermSnapshotDeductibleID", "type": "int",           "nullable": false },
+        { "name": "PolicyTermSnapshotID",           "type": "int",           "nullable": false },
+        { "name": "DeductibleTypeCode",             "type": "tinyint",       "nullable": false },
+        { "name": "DeductibleAmount",               "type": "decimal",       "nullable": true  },
+        { "name": "DeductiblePercent",              "type": "decimal",       "nullable": true  },
+        { "name": "IsActive",                       "type": "bit",           "nullable": false },
+        { "name": "CreatedDate",                    "type": "smalldatetime", "nullable": false },
+        { "name": "LastUpdateDate",                 "type": "smalldatetime", "nullable": true  },
+        { "name": "LastUpdateByPartyID",            "type": "int",           "nullable": true  }
+      ]
+    },
+    "party.Party": {
+      "confirmed_date": "2026-04-10",
+      "confirmed_ticket": "99882",
+      "columns": [
+        { "name": "PartyID",             "type": "int",           "nullable": false },
+        { "name": "PartyFullName",       "type": "nvarchar",      "nullable": false },
+        { "name": "PartyTypeCode",       "type": "tinyint",       "nullable": false },
+        { "name": "IsDeleted",           "type": "bit",           "nullable": false },
+        { "name": "LastUpdateDate",      "type": "smalldatetime", "nullable": false },
+        { "name": "RecordLastModifiedBy","type": "nvarchar",      "nullable": false }
+      ]
+    },
+    "party.PartyLogin": {
+      "confirmed_date": "2026-04-10",
+      "confirmed_ticket": "99882",
+      "columns": [
+        { "name": "PartyLoginID",    "type": "int",           "nullable": false },
+        { "name": "PartyID",         "type": "int",           "nullable": false },
+        { "name": "LoginName",       "type": "nvarchar",      "nullable": false },
+        { "name": "LastLoginDate",   "type": "smalldatetime", "nullable": true  },
+        { "name": "IsDeleted",       "type": "bit",           "nullable": false }
+      ]
+    }
+  },
+
+  "sql_templates": {
+    "cluster_a_diag": {
+      "description": "Cluster A — mortgagee enumeration + PPPC count + Variant C diagnosis",
+      "file": "cluster_a_variant_c_diag.sql",
+      "tokens": ["SNAPSHOT_ID"]
+    },
+    "cluster_a_dedup": {
+      "description": "Cluster A — ROW_NUMBER dedup: survivor + delete candidates for mortgagee CustomerIDs",
+      "file": "cluster_a_dedup.sql",
+      "tokens": []
+    },
+    "cluster_c_diag": {
+      "description": "Cluster C — snapshot flag scan: all IsActivePolicyTermSnapshot values for a PolicyTermID",
+      "file": "cluster_c_diag.sql",
+      "tokens": ["POLICY_TERM_ID"]
+    },
+    "cluster_w_diag": {
+      "description": "Cluster W — deductible scan: WindHail row presence check for snapshot",
+      "file": "cluster_w_diag.sql",
+      "tokens": ["SNAPSHOT_ID"]
+    },
+    "policy_q1": {
+      "description": "Policy Q1 — all terms + snapshots + status for a given PolicyPrefix + PolicyNumber",
+      "file": "policy_q1.sql",
+      "tokens": ["POLICY_PREFIX", "POLICY_NUMBER"]
+    },
+    "schema_q0": {
+      "description": "Schema Q0 — sys.columns probe for any table",
+      "file": "schema_q0.sql",
+      "tokens": ["TABLE_NAME"]
+    },
+    "party_lookup": {
+      "description": "Party lookup — PartyID + LoginName for a name or email fragment",
+      "file": "party_lookup.sql",
+      "tokens": ["SEARCH_TERM"]
+    }
+  },
+
+  "clusters": {
+    "mortgagee customer not found": {
+      "label": "Set as Payor guard throw — compound predicate (CustomerID + AddressLine1) returns null",
+      "code": "Cluster A / Variant C",
+      "target_table": "customer.CustomerAddress",
+      "fix_mechanism": "UPDATE AddressLine1 to correct non-truncated value",
+      "template_key": "cluster_a_diag",
+      "variant_check": "Run msi sql cluster_a_diag <snapshot_id>. Count PPPC rows: 0=Variant A, 2+=Variant B, 1=Variant C."
+    },
+    "sequence contains no matching element": {
+      "label": "LINQ .Single(predicate) — collection loaded, predicate finds nothing",
+      "code": "Cluster A (confirm variant)",
+      "target_table": "customer.CustomerAddress OR policy.PolicyTermSnapshotCustomer",
+      "fix_mechanism": "Depends on variant — run diagnostic first",
+      "template_key": "cluster_a_diag",
+      "variant_check": "PPPC row count determines variant. Run: msi sql cluster_a_diag <snapshot_id>."
+    },
+    "sequence contains no elements": {
+      "label": "LINQ .Single() — collection is EMPTY — active snapshot flag is corrupt",
+      "code": "Cluster C",
+      "target_table": "policy.PolicyTermSnapshot",
+      "fix_mechanism": "UPDATE IsActivePolicyTermSnapshot = 1 by PolicyTermSnapshotID",
+      "template_key": "cluster_c_diag",
+      "variant_check": "Confirm ALL snapshots for the PolicyTermID show IsActivePolicyTermSnapshot = 0."
+    },
+    "missing windh": {
+      "label": "Missing WindHail deductible row — PolicyTermSnapshotDeductible INSERT required",
+      "code": "Cluster W",
+      "target_table": "policy.PolicyTermSnapshotDeductible",
+      "fix_mechanism": "INSERT missing WindHail deductible row",
+      "template_key": "cluster_w_diag",
+      "variant_check": "Confirm DeductibleTypeCode for WindHail from reference.DeductibleType before INSERT."
+    },
+    "nonpaycancelinprogress": {
+      "label": "Non-pay cancellation flag stuck — IsNonPayCancelInProgress bit needs correction",
+      "code": "Cluster D",
+      "target_table": "policy.PolicyTermSnapshot",
+      "fix_mechanism": "UPDATE IsNonPayCancelInProgress = 0 by PolicyTermSnapshotID",
+      "template_key": "cluster_c_diag",
+      "variant_check": "Confirm billing payment schedule before clearing the flag."
+    },
+    "ineligible for coverage": {
+      "label": "Endorsement eligibility rule block — mortgagee count exceeds product maximum",
+      "code": "Cluster A / eligibility side-effect",
+      "target_table": "policy.PolicyTermSnapshotCustomer",
+      "fix_mechanism": "Remove orphan CustomerTypeCode=5 row via portal if count rule is wrong",
+      "template_key": "cluster_a_diag",
+      "variant_check": "Count CustomerTypeCode=5 rows for the snapshot. Product max is typically 2."
+    },
+    "invalid column": {
+      "label": "Msg 207 — column name does not exist on the target table",
+      "code": "Schema mismatch",
+      "target_table": "<table specified in query>",
+      "fix_mechanism": "Run Q0 (msi schema <table>) to confirm actual column name",
+      "template_key": "schema_q0",
+      "variant_check": "Always run msi schema <table> before referencing any column on a new table."
+    }
   }
 }

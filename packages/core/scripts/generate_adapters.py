@@ -468,6 +468,52 @@ import type {{ TenantDomain }} from '../types/tenant.types';
 export const TENANT_DOMAIN: TenantDomain = {domain_ts} as unknown as TenantDomain;
 """
 
+def emit_db_maps_zsh(domain: dict, tenant: str) -> str:
+    """Emit DB intelligence maps: SCHEMA, SQL_TEMPLATES, CLUSTERS."""
+    slug = domain["tenant"]["slug"]
+    S    = slug.upper()
+    ts   = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    L    = [
+        f"# db_maps.zsh — AUTO-GENERATED — do not edit directly",
+        f"# Tenant: {slug}   Generated: {ts}",
+        "",
+    ]
+
+    # ── DB_SCHEMA ─────────────────────────────────────────────────────────────
+    # Value format: "confirmed_date:ticket|col:type:nullable|col:type:nullable|..."
+    if domain.get("db_schema"):
+        L += [f"typeset -gA {S}_SCHEMA", f"{S}_SCHEMA=("]
+        for table, tdata in domain["db_schema"].items():
+            col_parts = "|".join(
+                f"{c['name']}:{c['type']}:{'1' if c['nullable'] else '0'}"
+                for c in tdata.get("columns", [])
+            )
+            meta = f"{tdata.get('confirmed_date','')}:{tdata.get('confirmed_ticket','')}"
+            L.append(f'  [{zsh_safe(table)}]="{meta}|{col_parts}"')
+        L += [")", ""]
+
+    # ── SQL_TEMPLATES ─────────────────────────────────────────────────────────
+    # Value format: "description|file.sql"
+    if domain.get("sql_templates"):
+        L += [f"typeset -gA {S}_SQL_TEMPLATES", f"{S}_SQL_TEMPLATES=("]
+        for key, t in domain["sql_templates"].items():
+            desc = zsh_safe(t.get("description", ""))
+            file = zsh_safe(t.get("file", ""))
+            L.append(f'  [{zsh_safe(key)}]="{desc}|{file}"')
+        L += [")", ""]
+
+    # ── CLUSTERS ──────────────────────────────────────────────────────────────
+    # Value format: "label|code|target_table|fix_mechanism|template_key|variant_check"
+    if domain.get("clusters"):
+        L += [f"typeset -gA {S}_CLUSTERS", f"{S}_CLUSTERS=("]
+        for pattern, c in domain["clusters"].items():
+            val = "|".join(zsh_safe(c.get(f, "")) for f in
+                           ["label","code","target_table","fix_mechanism",
+                            "template_key","variant_check"])
+            L.append(f'  [{zsh_safe(pattern)}]="{val}"')
+        L += [")", ""]
+
+    return "\n".join(L) if len(L) > 3 else ""
 
 # ── Main generation logic ─────────────────────────────────────────────────────
 def generate_tenant(tenant: str, ts_only: bool = False, dry_run: bool = False) -> int:
@@ -512,6 +558,10 @@ def generate_tenant(tenant: str, ts_only: bool = False, dry_run: bool = False) -
     for path, content in files.items():
         path.write_text(content, encoding="utf-8")
         print(f"  wrote  {path.relative_to(REPO_ROOT)}")
+
+    db_maps = emit_db_maps_zsh(domain, tenant)
+    if db_maps:
+        files[out_dir / "db_maps.zsh"] = db_maps
 
     brand = domain.get("tenant", {}).get("brand_name", tenant)
     ops   = len(domain.get("operations", {}))
